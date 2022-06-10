@@ -231,15 +231,13 @@ public:
 };
 
 
-void ShowConsoleCursor(bool showFlag)
+void HideCursor()
 {
-	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	CONSOLE_CURSOR_INFO     cursorInfo;
-
-	GetConsoleCursorInfo(out, &cursorInfo);
-	cursorInfo.bVisible = showFlag; // set the cursor visibility
-	SetConsoleCursorInfo(out, &cursorInfo);
+	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO info;
+	info.dwSize = 100;
+	info.bVisible = FALSE;
+	SetConsoleCursorInfo(consoleHandle, &info);
 }
 
 void RenderBoard(char board[boardHeight][boardWidth])
@@ -297,7 +295,7 @@ int main()
 	int randomFigure = rand() % 6 + 0;
 	InsertFigure(board, figures[randomFigure].fig, posY, posX);
 
-	ShowConsoleCursor(false);
+	HideCursor();
 
 	bool nearWallLeft;
 	bool nearWallRight;

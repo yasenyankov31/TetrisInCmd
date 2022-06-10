@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <thread>
 #include <Windows.h>
 #include <algorithm>
@@ -19,42 +18,13 @@ using namespace std;
 const int boardHeight = 20;
 const int boardWidth = 10;
 
-void cls()
+
+void ClearScreen()
 {
-	// Get the Win32 handle representing standard output.
-	// This generally only has to be done once, so we make it static.
-	static const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	COORD topLeft = { 0, 0 };
-
-	// std::cout uses a buffer to batch writes to the underlying console.
-	// We need to flush that to the console because we're circumventing
-	// std::cout entirely; after we clear the console, we don't want
-	// stale buffered text to randomly be written out.
-	std::cout.flush();
-
-	// Figure out the current width and height of the console window
-	if (!GetConsoleScreenBufferInfo(hOut, &csbi)) {
-		// TODO: Handle failure!
-		abort();
-	}
-	DWORD length = csbi.dwSize.X * csbi.dwSize.Y;
-
-	DWORD written;
-
-	// Flood-fill the console with spaces to clear it
-	FillConsoleOutputCharacter(hOut, TEXT(' '), length, topLeft, &written);
-
-	// Reset the attributes of every character to the default.
-	// This clears all background colour formatting, if any.
-	FillConsoleOutputAttribute(hOut, csbi.wAttributes, length, topLeft, &written);
-
-	// Move the cursor back to the top left for the next sequence of writes
-	SetConsoleCursorPosition(hOut, topLeft);
+	COORD cursorPosition;	cursorPosition.X = 0;	cursorPosition.Y = 0;	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 }
 
-void InsertFigure(string board[boardHeight][boardWidth], vector<vector<string>> figure, int y, int x)
+void InsertFigure(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
 {
 	int a = 0;
 	for (size_t i = y; i < y + figure.size(); i++)
@@ -70,20 +40,20 @@ void InsertFigure(string board[boardHeight][boardWidth], vector<vector<string>> 
 
 }
 
-void ClearA(string board[boardHeight][boardWidth])
+void ClearA(char board[boardHeight][boardWidth])
 {
 	for (size_t i = 0; i < boardHeight; i++)
 	{
-		replace(std::begin(board[i]), std::end(board[i]), "A", ".");
+		replace(std::begin(board[i]), std::end(board[i]), 'A', '.');
 	}
 
 }
 
-void ChangeToB(string board[boardHeight][boardWidth])
+void ChangeToB(char board[boardHeight][boardWidth])
 {
 	for (size_t i = 0; i < boardHeight; i++)
 	{
-		replace(std::begin(board[i]), std::end(board[i]), "A", "B");
+		replace(std::begin(board[i]), std::end(board[i]), 'A', 'B');
 	}
 
 }
@@ -93,10 +63,10 @@ class Figure
 {
 public:
 	int phase = 0;
-	vector<vector<string>> fig;
-	vector<vector<vector<string>>> rotations;
+	vector<vector<char>> fig;
+	vector<vector<vector<char>>> rotations;
 
-	void Rotate(string Board[boardHeight][boardWidth], vector<vector<vector<string>>> Rotations, int y, int x)
+	void Rotate(char Board[boardHeight][boardWidth], vector<vector<vector<char>>> Rotations, int y, int x)
 	{
 		if (Rotations.size() > 0 && x + 4 < boardWidth && y + 4 < boardHeight)
 		{
@@ -121,12 +91,12 @@ class IFigure :public Figure
 {
 public:
 
-	vector<vector<string>> I = { {"A"},
-							{"A"},
-							{"A"},
-							{"A"}
+	vector<vector<char>> I = { {'A'},
+							{'A'},
+							{'A'},
+							{'A'}
 	};
-	vector<vector<string>> I1 = { {"A","A","A","A"}
+	vector<vector<char>> I1 = { {'A','A','A','A'}
 	};
 	IFigure()
 	{
@@ -139,12 +109,12 @@ public:
 class SFigure :public Figure
 {
 public:
-	vector<vector<string>> S = { {".","A","A"},
-								 {"A","A","."}
+	vector<vector<char>> S = { {'.','A','A'},
+								 {'A','A','.'}
 	};
-	vector<vector<string>> S1 = { {"A","."},
-								{"A","A"},
-								{".","A"}
+	vector<vector<char>> S1 = { {'A','.'},
+								{'A','A'},
+								{'.','A'}
 	};
 	SFigure()
 	{
@@ -157,12 +127,12 @@ public:
 class ZFigure :public Figure
 {
 public:
-	vector<vector<string>> Z = { {"A","A","."},
-								 {".","A","A"}
+	vector<vector<char>> Z = { {'A','A','.'},
+								 {'.','A','A'}
 	};
-	vector<vector<string>> Z1 = { {".","A"},
-								  {"A","A"},
-								  {"A","."}
+	vector<vector<char>> Z1 = { {'.','A'},
+								  {'A','A'},
+								  {'A','.'}
 	};
 	ZFigure()
 	{
@@ -175,19 +145,19 @@ public:
 class LFigure :public Figure
 {
 public:
-	vector<vector<string>> L = { {"A","."},
-								{"A","."},
-								{"A","A"},
+	vector<vector<char>> L = { {'A','.'},
+								{'A','.'},
+								{'A','A'},
 	};
-	vector<vector<string>> L1 = { {".",".","A"},
-								  {"A","A","A"},
+	vector<vector<char>> L1 = { {'.','.','A'},
+								  {'A','A','A'},
 	};
-	vector<vector<string>> L2 = { {"A","A"},
-								  {".","A"},
-								{".","A"},
+	vector<vector<char>> L2 = { {'A','A'},
+								  {'.','A'},
+								{'.','A'},
 	};
-	vector<vector<string>> L3 = { {"A","A","A"},
-						{"A",".","."},
+	vector<vector<char>> L3 = { {'A','A','A'},
+						{'A','.','.'},
 	};
 	LFigure()
 	{
@@ -200,19 +170,19 @@ public:
 class JFigure :public Figure
 {
 public:
-	vector<vector<string>> J = { {".","A"},
-					   {".","A"},
-					   {"A","A"},
+	vector<vector<char>> J = { {'.','A'},
+					   {'.','A'},
+					   {'A','A'},
 	};
-	vector<vector<string>> J1 = { {"A","A","A"},
-						{".",".","A"},
+	vector<vector<char>> J1 = { {'A','A','A'},
+						{'.','.','A'},
 	};
-	vector<vector<string>> J2 = { {"A","A"},
-						{"A","."},
-						{"A","."},
+	vector<vector<char>> J2 = { {'A','A'},
+						{'A','.'},
+						{'A','.'},
 	};
-	vector<vector<string>> J3 = { {"A",".","."},
-						{"A","A","A"},
+	vector<vector<char>> J3 = { {'A','.','.'},
+						{'A','A','A'},
 	};
 	JFigure()
 	{
@@ -225,19 +195,19 @@ public:
 class TFigure :public Figure
 {
 public:
-	vector<vector<string>> T = { {"A","A","A"},
-					   {".","A","."}
+	vector<vector<char>> T = { {'A','A','A'},
+					   {'.','A','.'}
 	};
-	vector<vector<string>> T1 = { {"A","."},
-						{"A","A"},
-						{"A","."},
+	vector<vector<char>> T1 = { {'A','.'},
+						{'A','A'},
+						{'A','.'},
 	};
-	vector<vector<string>> T2 = { {".","A","."},
-						{"A","A","A"}
+	vector<vector<char>> T2 = { {'.','A','.'},
+						{'A','A','A'}
 	};
-	vector<vector<string>> T3 = { {".","A"},
-						{"A","A"},
-						{".","A"},
+	vector<vector<char>> T3 = { {'.','A'},
+						{'A','A'},
+						{'.','A'},
 	};
 	TFigure()
 	{
@@ -249,8 +219,8 @@ public:
 class OFigure :public Figure
 {
 public:
-	vector<vector<string>> O = { { "A","A" }
-								,{ "A", "A"}
+	vector<vector<char>> O = { { 'A','A' }
+								,{ 'A', 'A'}
 	};
 	OFigure()
 	{
@@ -272,16 +242,16 @@ void ShowConsoleCursor(bool showFlag)
 	SetConsoleCursorInfo(out, &cursorInfo);
 }
 
-void RenderBoard(string board[boardHeight][boardWidth])
+void RenderBoard(char board[boardHeight][boardWidth])
 {
 	for (size_t i = 0; i < boardHeight; i++)
 	{
-		cout << "#";
+		cout << '#';
 		for (size_t j = 0; j < boardWidth; j++)
 		{
 			cout << board[i][j];
 		}
-		cout << "#" << "\n";
+		cout << '#' << '\n';
 
 	}
 }
@@ -296,14 +266,14 @@ int main()
 	int figureplace;
 	int boardspaces[boardHeight][boardWidth];
 
-	string board[boardHeight][boardWidth];
+	char board[boardHeight][boardWidth] = {};
 
 
 	for (size_t i = 0; i < boardHeight - 1; i++)
 	{
-		fill(board[i], board[i] + 10, ".");
+		fill(board[i], board[i] + 10, '.');
 	}
-	fill(board[boardHeight - 1], board[boardHeight - 1] + 10, "#");
+	fill(board[boardHeight - 1], board[boardHeight - 1] + 10, '#');
 
 	IFigure figureI;
 	SFigure figureS;
@@ -332,14 +302,10 @@ int main()
 	bool nearWallLeft;
 	bool nearWallRight;
 	int score = 0;
+	bool GameOver = false;
 
-	while (true)
+	while (!GameOver)
 	{
-		//Game Over
-		if (board[0][5]=="B")
-		{
-			break;
-		}
 		//reset flags
 		x = 0;
 		y = 0;
@@ -367,9 +333,9 @@ int main()
 			int bCount = 0;
 			for (size_t j = 1; j < boardWidth; j++)
 			{
-				if (board[i][j] == "A")
+				if (board[i][j] == 'A')
 				{
-					if (board[i + 1][j] == "B" || board[i + 1][j] == "#")
+					if (board[i + 1][j] == 'B' || board[i + 1][j] == '#')
 					{
 						posY = 0;
 						posX = 5;
@@ -377,31 +343,37 @@ int main()
 						figures[randomFigure].phase = 0;
 						randomFigure = rand() % 6 + 0;
 						ChangeToB(board);
+						//Game Over
+						if (board[1][5] == 'B')
+						{
+							GameOver = true;
+							break;
+						}
 						InsertFigure(board, figures[randomFigure].fig, posY, posX);
 						break;
 					}
-					if (board[i][j - 1] == "B" || board[i][0] == "A")
+					if (board[i][j - 1] == 'B' || board[i][0] == 'A')
 					{
 						nearWallLeft = true;
 					}
-					if (board[i][j + 1] == "B" || board[i][9] == "A")
+					if (board[i][j + 1] == 'B' || board[i][9] == 'A')
 					{
 						nearWallRight = true;
 					}
 
 				}
-				if (board[i][j] == "B")
+				if (board[i][j] == 'B')
 				{
 					bCount++;
 				}
 
 
 			}
-			if (bCount==9&& board[i][0] == "B")
+			if (bCount==9&& board[i][0] == 'B')
 			{
 				deletedRows++;
 				score += 100;
-				fill(board[i], board[i] + 10, ".");
+				fill(board[i], board[i] + 10, '.');
 			}
 
 		}
@@ -412,7 +384,7 @@ int main()
 			for (size_t j = 0; j < boardWidth; j++)
 			{
 
-				if (board[i][j] == "A")
+				if (board[i][j] == 'A')
 				{
 					if (!nearWallLeft && x == -1)
 					{
@@ -427,9 +399,9 @@ int main()
 						swap(board[i][j], board[i + 1][j]);
 					}
 				}
-				if (board[i][j] == "B")
+				if (board[i][j] == 'B')
 				{
-					if (board[i+1][j] == "." && deletedRows != 0)
+					if (board[i+1][j] == '.' && deletedRows != 0)
 					{
 						swap(board[i][j], board[i + deletedRows][j]);
 					}
@@ -438,15 +410,17 @@ int main()
 			}
 		}
 
+
 		RenderBoard(board);
 
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(250));
-		cls();
+		ClearScreen();
 		posY++;
 
 	}
-	cout << "Game Over! Your score is " << score;
+	system("cls");
+	cout << "Game Over!Your score is " << score;
 
 
 

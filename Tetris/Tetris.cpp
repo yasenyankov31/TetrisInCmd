@@ -21,7 +21,10 @@ const int boardWidth = 10;
 
 void ClearScreen()
 {
-	COORD cursorPosition;	cursorPosition.X = 0;	cursorPosition.Y = 0;	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
+	COORD cursorPosition;	
+	cursorPosition.X = 0;	
+	cursorPosition.Y = 0;	
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 }
 
 void InsertFigure(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
@@ -44,7 +47,7 @@ void ClearA(char board[boardHeight][boardWidth])
 {
 	for (size_t i = 0; i < boardHeight; i++)
 	{
-		replace(std::begin(board[i]), std::end(board[i]), 'A', '.');
+		replace(std::begin(board[i]), std::end(board[i]), 'A', ' ');
 	}
 
 }
@@ -58,6 +61,21 @@ void ChangeToB(char board[boardHeight][boardWidth])
 
 }
 
+bool CheckIfCanRotate(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
+{
+	for (size_t i = y; i < y + figure.size(); i++)
+	{
+		for (size_t j = 0; j < figure[0].size(); j++)
+		{
+			if (board[i][j]=='B'||x+j<0||x+j>boardWidth-1)
+			{
+				return false;
+			}
+		}
+
+	}
+	return true;
+}
 
 class Figure
 {
@@ -68,18 +86,21 @@ public:
 
 	void Rotate(char Board[boardHeight][boardWidth], vector<vector<vector<char>>> Rotations, int y, int x)
 	{
-		if (Rotations.size() > 0 && x + 4 < boardWidth && y + 4 < boardHeight)
+		int prevPhase = phase;
+		if (Rotations.size() > 0)
 		{
-			ClearA(Board);
-			if (phase < Rotations.size() - 1)
+			(phase < Rotations.size() - 1) ? phase++ : phase = 0;
+
+			if (CheckIfCanRotate(Board, Rotations[phase], y, x))
 			{
-				phase++;
+				ClearA(Board);
+				InsertFigure(Board, Rotations[phase], y, x);
 			}
 			else
 			{
-				phase = 0;
+				phase = prevPhase;
 			}
-			InsertFigure(Board, Rotations[phase], y, x);
+
 		}
 
 
@@ -109,12 +130,12 @@ public:
 class SFigure :public Figure
 {
 public:
-	vector<vector<char>> S = { {'.','A','A'},
-								 {'A','A','.'}
+	vector<vector<char>> S = { {' ','A','A'},
+								 {'A','A',' '}
 	};
-	vector<vector<char>> S1 = { {'A','.'},
+	vector<vector<char>> S1 = { {'A',' '},
 								{'A','A'},
-								{'.','A'}
+								{' ','A'}
 	};
 	SFigure()
 	{
@@ -127,12 +148,12 @@ public:
 class ZFigure :public Figure
 {
 public:
-	vector<vector<char>> Z = { {'A','A','.'},
-								 {'.','A','A'}
+	vector<vector<char>> Z = { {'A','A',' '},
+								 {' ','A','A'}
 	};
-	vector<vector<char>> Z1 = { {'.','A'},
+	vector<vector<char>> Z1 = { {' ','A'},
 								  {'A','A'},
-								  {'A','.'}
+								  {'A',' '}
 	};
 	ZFigure()
 	{
@@ -145,19 +166,19 @@ public:
 class LFigure :public Figure
 {
 public:
-	vector<vector<char>> L = { {'A','.'},
-								{'A','.'},
+	vector<vector<char>> L = { {'A',' '},
+								{'A',' '},
 								{'A','A'},
 	};
-	vector<vector<char>> L1 = { {'.','.','A'},
+	vector<vector<char>> L1 = { {' ',' ','A'},
 								  {'A','A','A'},
 	};
 	vector<vector<char>> L2 = { {'A','A'},
-								  {'.','A'},
-								{'.','A'},
+								  {' ','A'},
+								{' ','A'},
 	};
 	vector<vector<char>> L3 = { {'A','A','A'},
-						{'A','.','.'},
+						{'A',' ',' '},
 	};
 	LFigure()
 	{
@@ -170,18 +191,18 @@ public:
 class JFigure :public Figure
 {
 public:
-	vector<vector<char>> J = { {'.','A'},
-					   {'.','A'},
+	vector<vector<char>> J = { {' ','A'},
+					   {' ','A'},
 					   {'A','A'},
 	};
 	vector<vector<char>> J1 = { {'A','A','A'},
-						{'.','.','A'},
+						{' ',' ','A'},
 	};
 	vector<vector<char>> J2 = { {'A','A'},
-						{'A','.'},
-						{'A','.'},
+						{'A',' '},
+						{'A',' '},
 	};
-	vector<vector<char>> J3 = { {'A','.','.'},
+	vector<vector<char>> J3 = { {'A',' ',' '},
 						{'A','A','A'},
 	};
 	JFigure()
@@ -196,18 +217,18 @@ class TFigure :public Figure
 {
 public:
 	vector<vector<char>> T = { {'A','A','A'},
-					   {'.','A','.'}
+					   {' ','A',' '}
 	};
-	vector<vector<char>> T1 = { {'A','.'},
+	vector<vector<char>> T1 = { {'A',' '},
 						{'A','A'},
-						{'A','.'},
+						{'A',' '},
 	};
-	vector<vector<char>> T2 = { {'.','A','.'},
+	vector<vector<char>> T2 = { {' ','A',' '},
 						{'A','A','A'}
 	};
-	vector<vector<char>> T3 = { {'.','A'},
+	vector<vector<char>> T3 = { {' ','A'},
 						{'A','A'},
-						{'.','A'},
+						{' ','A'},
 	};
 	TFigure()
 	{
@@ -259,8 +280,6 @@ void RenderBoard(char board[boardHeight][boardWidth])
 
 int main()
 {
-
-
 	int figureplace;
 	int boardspaces[boardHeight][boardWidth];
 
@@ -269,7 +288,7 @@ int main()
 
 	for (size_t i = 0; i < boardHeight - 1; i++)
 	{
-		fill(board[i], board[i] + 10, '.');
+		fill(board[i], board[i] + 10, ' ');
 	}
 	fill(board[boardHeight - 1], board[boardHeight - 1] + 10, '#');
 
@@ -312,11 +331,15 @@ int main()
 
 		//input
 		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1)
+		{
 			x = 1;
-		posX++;
+			posX++;
+		}
 		if (GetAsyncKeyState(VK_LEFT) != 0 && GetAsyncKeyState(VK_LEFT) != 1)
+		{
 			x = -1;
-		posX--;
+			posX--;
+		}
 		if (GetAsyncKeyState(VK_DOWN) != 0 && GetAsyncKeyState(VK_DOWN) != 1)
 			y = 1;
 		if (GetAsyncKeyState(VK_ROTATE) != 0 && GetAsyncKeyState(VK_ROTATE) != 1)
@@ -328,8 +351,16 @@ int main()
 		//loop for collision
 		for (int i = boardHeight - 2; i > 0; i--)
 		{
+			if (board[i][0] == 'A')
+			{
+				nearWallLeft = true;
+			}
+			if (board[i][9] == 'A')
+			{
+				nearWallRight = true;
+			}
 			int bCount = 0;
-			for (size_t j = 1; j < boardWidth; j++)
+			for (size_t j = 0; j < boardWidth; j++)
 			{
 				if (board[i][j] == 'A')
 				{
@@ -350,11 +381,14 @@ int main()
 						InsertFigure(board, figures[randomFigure].fig, posY, posX);
 						break;
 					}
-					if (board[i][j - 1] == 'B' || board[i][0] == 'A')
+					if (j!=0)
 					{
-						nearWallLeft = true;
+						if (board[i][j - 1] == 'B')
+						{
+							nearWallLeft = true;
+						}
 					}
-					if (board[i][j + 1] == 'B' || board[i][9] == 'A')
+					if (board[i][j + 1] == 'B' )
 					{
 						nearWallRight = true;
 					}
@@ -367,12 +401,13 @@ int main()
 
 
 			}
-			if (bCount==9&& board[i][0] == 'B')
+			if (bCount==10)
 			{
 				deletedRows++;
 				score += 100;
-				fill(board[i], board[i] + 10, '.');
+				fill(board[i], board[i] + 10, ' ');
 			}
+
 
 		}
 
@@ -382,7 +417,7 @@ int main()
 			for (size_t j = 0; j < boardWidth; j++)
 			{
 
-				if (board[i][j] == 'A')
+				if (board[i][j] == 'A'&& board[i+1][j] != '#')
 				{
 					if (!nearWallLeft && x == -1)
 					{
@@ -399,7 +434,7 @@ int main()
 				}
 				if (board[i][j] == 'B')
 				{
-					if (board[i+1][j] == '.' && deletedRows != 0)
+					if (board[i+1][j] == ' ' && deletedRows != 0)
 					{
 						swap(board[i][j], board[i + deletedRows][j]);
 					}

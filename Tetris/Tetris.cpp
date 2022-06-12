@@ -340,7 +340,6 @@ int main()
 	bool GameOver = false;
 
 	bool LastMove = false;
-	int LastY;
 
 	while (!GameOver)
 	{
@@ -352,7 +351,7 @@ int main()
 		nearWallRight = false;
 
 		//input
-		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1 && posX < boardWidth)
+		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1 && posX < boardWidth-1)
 		{
 			x = 1;
 			posX++;

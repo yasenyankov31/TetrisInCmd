@@ -7,8 +7,7 @@ C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(15,1): warning C4005: 'VK_DO
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\winuser.h(523): message : see previous definition of 'VK_DOWN'
 C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(111,11): warning C4018: '<': signed/unsigned mismatch
 C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(331,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(396,17): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(395,17): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
 C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(301,6): warning C4101: 'figureplace': unreferenced local variable
-C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(343,6): warning C4101: 'LastY': unreferenced local variable
 C:\Users\Qska\source\repos\Tetris\Tetris\Tetris.cpp(302,6): warning C4101: 'boardspaces': unreferenced local variable
   Tetris.vcxproj -> C:\Users\Qska\source\repos\Tetris\Debug\Tetris.exe

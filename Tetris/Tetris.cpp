@@ -34,16 +34,31 @@ void InsertFigure(char board[boardHeight][boardWidth], vector<vector<char>> figu
 	{
 		for (size_t j = 0; j < figure[0].size(); j++)
 		{
-			if (board[i][x + j] != 'B')
-			{
-				board[i][x + j] = figure[a][j];
-			}
+			board[i][x + j] = figure[a][j];
 
 
 		}
 		a++;
 
 	}
+
+}
+bool CheckIfFits(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
+{
+	int a = 0;
+	for (size_t i = y; i < y + figure.size(); i++)
+	{
+		for (size_t j = 0; j < figure[0].size(); j++)
+		{
+			if (board[i][x + j] == 'B')
+			{
+				return false;
+			}
+		}
+		a++;
+
+	}
+	return true;
 
 }
 
@@ -281,7 +296,6 @@ void RenderBoard(char board[boardHeight][boardWidth])
 
 
 
-
 int main()
 {
 	int figureplace;
@@ -392,12 +406,15 @@ int main()
 						InsertFigure(board, figures[randomFigure].fig, posY, posX);
 						break;
 					}
-					if ((board[i + 1][j] == 'B' || board[i + 1][j] == '#') && ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1) || x == 0))
+
+					if ((board[i + 1][j] == 'B' || board[i + 1][j] == '#'))
+					{
+						LastMove = true;
+					}
+					if (LastMove && (!nearWallLeft && x == -1) || (!nearWallRight && x == 1)&& CheckIfFits(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX))
 					{
 						ClearA(board);
 						InsertFigure(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX);
-						LastMove = true;
-
 					}
 					if (j != 0)
 					{
@@ -429,13 +446,14 @@ int main()
 
 		}
 
+
 		//move piece
 		for (int i = boardHeight - 2; i >= 0; i--)
 		{
 			for (size_t j = 0; j < boardWidth; j++)
 			{
 
-				if (board[i][j] == 'A' && !LastMove)
+				if (board[i][j] == 'A'&&!LastMove)
 				{
 					if ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1))
 					{
@@ -474,4 +492,4 @@ int main()
 
 	return 0;
 }
-
+ 

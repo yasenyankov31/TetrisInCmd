@@ -21,9 +21,9 @@ const int boardWidth = 10;
 
 void ClearScreen()
 {
-	COORD cursorPosition;	
-	cursorPosition.X = 0;	
-	cursorPosition.Y = 0;	
+	COORD cursorPosition;
+	cursorPosition.X = 0;
+	cursorPosition.Y = 0;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 }
 
@@ -34,7 +34,11 @@ void InsertFigure(char board[boardHeight][boardWidth], vector<vector<char>> figu
 	{
 		for (size_t j = 0; j < figure[0].size(); j++)
 		{
-			board[i][x + j] = figure[a][j];
+			if (board[i][x + j] != 'B')
+			{
+				board[i][x + j] = figure[a][j];
+			}
+
 
 		}
 		a++;
@@ -67,7 +71,7 @@ bool CheckIfCanRotate(char board[boardHeight][boardWidth], vector<vector<char>> 
 	{
 		for (size_t j = 0; j < figure[0].size(); j++)
 		{
-			if (board[i][j]=='B'||x+j<0||x+j>boardWidth-1)
+			if (board[i][x + j] == 'B' || x + j<0 || x + j>boardWidth - 1 || board[i][x + j] == '#')
 			{
 				return false;
 			}
@@ -265,12 +269,12 @@ void RenderBoard(char board[boardHeight][boardWidth])
 {
 	for (size_t i = 0; i < boardHeight; i++)
 	{
-		cout << '#';
+		std::cout << '#';
 		for (size_t j = 0; j < boardWidth; j++)
 		{
-			cout << board[i][j];
+			std::cout << board[i][j];
 		}
-		cout << '#' << '\n';
+		std::cout << '#' << '\n';
 
 	}
 }
@@ -321,8 +325,12 @@ int main()
 	int score = 0;
 	bool GameOver = false;
 
+	bool LastMove = false;
+	int LastY;
+
 	while (!GameOver)
 	{
+		int stepsDown = 1;
 		//reset flags
 		x = 0;
 		y = 0;
@@ -330,12 +338,12 @@ int main()
 		nearWallRight = false;
 
 		//input
-		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1)
+		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1 && posX < boardWidth)
 		{
 			x = 1;
 			posX++;
 		}
-		if (GetAsyncKeyState(VK_LEFT) != 0 && GetAsyncKeyState(VK_LEFT) != 1)
+		if (GetAsyncKeyState(VK_LEFT) != 0 && GetAsyncKeyState(VK_LEFT) != 1 && posX > 0)
 		{
 			x = -1;
 			posX--;
@@ -346,8 +354,10 @@ int main()
 			figures[randomFigure].Rotate(board, figures[randomFigure].rotations, posY, posX);
 
 
-		
+
 		int deletedRows = 0;
+
+
 		//loop for collision
 		for (int i = boardHeight - 2; i > 0; i--)
 		{
@@ -364,8 +374,9 @@ int main()
 			{
 				if (board[i][j] == 'A')
 				{
-					if (board[i + 1][j] == 'B' || board[i + 1][j] == '#')
+					if (LastMove)
 					{
+						LastMove = false;
 						posY = 0;
 						posX = 5;
 						srand(time(NULL));
@@ -381,27 +392,34 @@ int main()
 						InsertFigure(board, figures[randomFigure].fig, posY, posX);
 						break;
 					}
-					if (j!=0)
+					if ((board[i + 1][j] == 'B' || board[i + 1][j] == '#') && ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1) || x == 0))
+					{
+						ClearA(board);
+						InsertFigure(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX);
+						LastMove = true;
+
+					}
+					if (j != 0)
 					{
 						if (board[i][j - 1] == 'B')
 						{
 							nearWallLeft = true;
 						}
 					}
-					if (board[i][j + 1] == 'B' )
+					if (board[i][j + 1] == 'B')
 					{
 						nearWallRight = true;
 					}
 
 				}
-				if (board[i][j] == 'B')
+				else if (board[i][j] == 'B')
 				{
 					bCount++;
 				}
 
 
 			}
-			if (bCount==10)
+			if (bCount == 10)
 			{
 				deletedRows++;
 				score += 100;
@@ -417,31 +435,28 @@ int main()
 			for (size_t j = 0; j < boardWidth; j++)
 			{
 
-				if (board[i][j] == 'A'&& board[i+1][j] != '#')
+				if (board[i][j] == 'A' && !LastMove)
 				{
-					if (!nearWallLeft && x == -1)
+					if ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1))
 					{
-						swap(board[i][j], board[i + 1][j - 1]);
-					}
-					else if (!nearWallRight && x == 1)
-					{
-						swap(board[i][j], board[i + 1][j + 1]);
+						swap(board[i][j], board[i + stepsDown][j + x]);
 					}
 					else
 					{
-						swap(board[i][j], board[i + 1][j]);
+						swap(board[i][j], board[i + stepsDown][j]);
 					}
 				}
 				if (board[i][j] == 'B')
 				{
-					if (board[i+1][j] == ' ' && deletedRows != 0)
+					if (board[i + 1][j] == ' ' && deletedRows != 0)
 					{
 						swap(board[i][j], board[i + deletedRows][j]);
 					}
-					
+
 				}
 			}
 		}
+
 
 
 		RenderBoard(board);
@@ -452,8 +467,8 @@ int main()
 		posY++;
 
 	}
-	system("cls");
-	cout << "Game Over!Your score is " << score;
+	std::system("cls");
+	std::cout << "Game Over!Your score is " << score;
 
 
 

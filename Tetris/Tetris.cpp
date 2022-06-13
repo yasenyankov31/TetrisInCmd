@@ -34,31 +34,14 @@ void InsertFigure(char board[boardHeight][boardWidth], vector<vector<char>> figu
 	{
 		for (size_t j = 0; j < figure[0].size(); j++)
 		{
-			board[i][x + j] = figure[a][j];
-
-
-		}
-		a++;
-
-	}
-
-}
-bool CheckIfFits(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
-{
-	int a = 0;
-	for (size_t i = y; i < y + figure.size(); i++)
-	{
-		for (size_t j = 0; j < figure[0].size(); j++)
-		{
-			if (board[i][x + j] == 'B')
+			if (figure[a][j]!=' ')
 			{
-				return false;
+				board[i][x + j] = figure[a][j];
 			}
 		}
 		a++;
 
 	}
-	return true;
 
 }
 
@@ -337,12 +320,14 @@ int main()
 	bool nearWallLeft;
 	bool nearWallRight;
 	int score = 0;
-	bool GameOver = false;
 
-	bool LastMove = false;
+	bool canMove = true;
+	int LastMoveCount = 2;
 
-	while (!GameOver)
+	int timeSpeed = 250;
+	while (true)
 	{
+		timeSpeed = 250;
 		int stepsDown = 1;
 		//reset flags
 		x = 0;
@@ -351,7 +336,7 @@ int main()
 		nearWallRight = false;
 
 		//input
-		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1 && posX < boardWidth-1)
+		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1 && posX < boardWidth - 2)
 		{
 			x = 1;
 			posX++;
@@ -362,7 +347,8 @@ int main()
 			posX--;
 		}
 		if (GetAsyncKeyState(VK_DOWN) != 0 && GetAsyncKeyState(VK_DOWN) != 1)
-			y = 1;
+			timeSpeed = timeSpeed/4;
+
 		if (GetAsyncKeyState(VK_ROTATE) != 0 && GetAsyncKeyState(VK_ROTATE) != 1)
 			figures[randomFigure].Rotate(board, figures[randomFigure].rotations, posY, posX);
 
@@ -370,6 +356,23 @@ int main()
 
 		int deletedRows = 0;
 
+		if (LastMoveCount <= 0 && !canMove)
+		{
+			LastMoveCount = 2;
+			canMove = true;
+			posY = 0;
+			posX = 5;
+			srand(time(NULL));
+			figures[randomFigure].phase = 0;
+			randomFigure = rand() % 6 + 0;
+			ChangeToB(board);
+			//Game Over
+			if (board[1][5] == 'B')
+			{
+				break;
+			}
+			InsertFigure(board, figures[randomFigure].fig, posY, posX);
+		}
 
 		//loop for collision
 		for (int i = boardHeight - 2; i > 0; i--)
@@ -387,45 +390,23 @@ int main()
 			{
 				if (board[i][j] == 'A')
 				{
-					if (LastMove)
-					{
-						LastMove = false;
-						posY = 0;
-						posX = 5;
-						srand(time(NULL));
-						figures[randomFigure].phase = 0;
-						randomFigure = rand() % 6 + 0;
-						ChangeToB(board);
-						//Game Over
-						if (board[1][5] == 'B')
-						{
-							GameOver = true;
-							break;
-						}
-						InsertFigure(board, figures[randomFigure].fig, posY, posX);
-						break;
-					}
 
 					if ((board[i + 1][j] == 'B' || board[i + 1][j] == '#'))
 					{
-						LastMove = true;
+						canMove = false;
 					}
-					if (LastMove && (!nearWallLeft && x == -1) || (!nearWallRight && x == 1)&& CheckIfFits(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX))
-					{
-						ClearA(board);
-						InsertFigure(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX);
-					}
-					if (j != 0)
+					if (j != 0 && j != boardWidth - 1)
 					{
 						if (board[i][j - 1] == 'B')
 						{
 							nearWallLeft = true;
 						}
+						else if (board[i][j + 1] == 'B')
+						{
+							nearWallRight = true;
+						}
 					}
-					if (board[i][j + 1] == 'B')
-					{
-						nearWallRight = true;
-					}
+
 
 				}
 				else if (board[i][j] == 'B')
@@ -452,18 +433,28 @@ int main()
 			for (size_t j = 0; j < boardWidth; j++)
 			{
 
-				if (board[i][j] == 'A'&&!LastMove)
+				if (board[i][j] == 'A')
 				{
-					if ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1))
+					if (canMove)
 					{
-						swap(board[i][j], board[i + stepsDown][j + x]);
+						if ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1))
+						{
+							swap(board[i][j], board[i + stepsDown][j + x]);
+						}
+						else
+						{
+							swap(board[i][j], board[i + stepsDown][j]);
+						}
 					}
 					else
 					{
-						swap(board[i][j], board[i + stepsDown][j]);
+						LastMoveCount--;
+						ClearA(board);
+						InsertFigure(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX);
 					}
 				}
-				if (board[i][j] == 'B')
+
+				else if (board[i][j] == 'B')
 				{
 					if (board[i + 1][j] == ' ' && deletedRows != 0)
 					{
@@ -471,6 +462,7 @@ int main()
 					}
 
 				}
+
 			}
 		}
 
@@ -479,9 +471,13 @@ int main()
 		RenderBoard(board);
 
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+		std::this_thread::sleep_for(std::chrono::milliseconds(timeSpeed));
 		ClearScreen();
-		posY++;
+		if (canMove)
+		{
+			posY++;
+		}
+
 
 	}
 	std::system("cls");
@@ -491,4 +487,4 @@ int main()
 
 	return 0;
 }
- 
+

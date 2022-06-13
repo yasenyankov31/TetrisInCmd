@@ -30,18 +30,22 @@ void ClearScreen()
 void InsertFigure(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
 {
 	int a = 0;
-	for (size_t i = y; i < y + figure.size(); i++)
+	if (y+ figure.size()<=boardHeight&&x+ figure[0].size()<=boardWidth)
 	{
-		for (size_t j = 0; j < figure[0].size(); j++)
+		for (size_t i = y; i < y + figure.size(); i++)
 		{
-			if (figure[a][j]!=' ')
+			for (size_t j = 0; j < figure[0].size(); j++)
 			{
-				board[i][x + j] = figure[a][j];
+				if (figure[a][j] != ' ')
+				{
+					board[i][x + j] = figure[a][j];
+				}
 			}
-		}
-		a++;
+			a++;
 
+		}
 	}
+
 
 }
 
@@ -325,7 +329,9 @@ int main()
 	int LastMoveCount = 2;
 
 	int timeSpeed = 250;
-	while (true)
+	bool GameOver = false;
+
+	while (!GameOver)
 	{
 		timeSpeed = 250;
 		int stepsDown = 1;
@@ -336,7 +342,7 @@ int main()
 		nearWallRight = false;
 
 		//input
-		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1 && posX < boardWidth - 2)
+		if (GetAsyncKeyState(VK_RIGHT) != 0 && GetAsyncKeyState(VK_RIGHT) != 1 && posX < boardWidth)
 		{
 			x = 1;
 			posX++;
@@ -346,8 +352,8 @@ int main()
 			x = -1;
 			posX--;
 		}
-		if (GetAsyncKeyState(VK_DOWN) != 0 && GetAsyncKeyState(VK_DOWN) != 1)
-			timeSpeed = timeSpeed/4;
+		if (GetAsyncKeyState(VK_DOWN) != 0 && GetAsyncKeyState(VK_DOWN) != 1 && canMove)
+			timeSpeed = timeSpeed / 4;
 
 		if (GetAsyncKeyState(VK_ROTATE) != 0 && GetAsyncKeyState(VK_ROTATE) != 1)
 			figures[randomFigure].Rotate(board, figures[randomFigure].rotations, posY, posX);
@@ -367,10 +373,16 @@ int main()
 			randomFigure = rand() % 6 + 0;
 			ChangeToB(board);
 			//Game Over
-			if (board[1][5] == 'B')
+			for (size_t i = 0; i < boardWidth; i++)
 			{
-				break;
+				if (board[1][i] == 'B')
+				{
+					i = boardWidth;
+					GameOver = true;
+					break;
+				}
 			}
+
 			InsertFigure(board, figures[randomFigure].fig, posY, posX);
 		}
 
@@ -446,11 +458,15 @@ int main()
 							swap(board[i][j], board[i + stepsDown][j]);
 						}
 					}
-					else
+					else 
 					{
+						if ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1)) 
+						{
+							ClearA(board);
+							InsertFigure(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX);
+						}
 						LastMoveCount--;
-						ClearA(board);
-						InsertFigure(board, figures[randomFigure].rotations[figures[randomFigure].phase], posY, posX);
+
 					}
 				}
 

@@ -316,7 +316,7 @@ int main()
 
 	int y, x, posY = 0, posX = 5;
 	srand(time(NULL));
-	int randomFigure = rand() % 6 + 0;
+	int randomFigure = (rand() % 6) + 1;
 	InsertFigure(board, figures[randomFigure].fig, posY, posX);
 
 	HideCursor();
@@ -333,6 +333,7 @@ int main()
 
 	while (!GameOver)
 	{
+		vector<int> deletedRows;
 		timeSpeed = 250;
 		int stepsDown = 1;
 		//reset flags
@@ -360,7 +361,6 @@ int main()
 
 
 
-		int deletedRows = 0;
 
 		if (LastMoveCount <= 0 && !canMove)
 		{
@@ -370,7 +370,7 @@ int main()
 			posX = 5;
 			srand(time(NULL));
 			figures[randomFigure].phase = 0;
-			randomFigure = rand() % 6 + 0;
+			randomFigure = (rand() % 6) + 1;
 			ChangeToB(board);
 			//Game Over
 			for (size_t i = 0; i < boardWidth; i++)
@@ -430,8 +430,8 @@ int main()
 			}
 			if (bCount == 10)
 			{
-				deletedRows++;
 				score += 100;
+				deletedRows.push_back(i);
 				fill(board[i], board[i] + 10, ' ');
 			}
 
@@ -472,11 +472,15 @@ int main()
 
 				else if (board[i][j] == 'B')
 				{
-					if (board[i + 1][j] == ' ' && deletedRows != 0)
+					for (size_t k = 0; k < deletedRows.size(); k++)
 					{
-						swap(board[i][j], board[i + deletedRows][j]);
+						if (i<deletedRows[k])
+						{
+							swap(board[i][j], board[i + deletedRows.size()][j]);
+							break;
+						}
 					}
-
+					
 				}
 
 			}

@@ -139,7 +139,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Figure.cpp" />
+    <ClCompile Include="IFigure.cpp" />
+    <ClCompile Include="JFigure.cpp" />
+    <ClCompile Include="LFigure.cpp" />
+    <ClCompile Include="OFigure.cpp" />
+    <ClCompile Include="SFigure.cpp" />
     <ClCompile Include="Tetris.cpp" />
+    <ClCompile Include="TFigure.cpp" />
+    <ClCompile Include="ZFigure.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Figure.h" />
+    <ClInclude Include="IFigure.h" />
+    <ClInclude Include="JFigure.h" />
+    <ClInclude Include="LFigure.h" />
+    <ClInclude Include="OFigure.h" />
+    <ClInclude Include="SFigure.h" />
+    <ClInclude Include="TFigure.h" />
+    <ClInclude Include="ZFigure.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

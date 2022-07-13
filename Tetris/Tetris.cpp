@@ -3,7 +3,14 @@
 #include <Windows.h>
 #include <algorithm>
 #include <vector>
-
+#include "Figure.h"
+#include "IFigure.h"
+#include "LFigure.h"
+#include "SFigure.h"
+#include "ZFigure.h"
+#include "JFigure.h"
+#include "OFigure.h"
+#include "TFigure.h"
 
 using namespace std;
 
@@ -15,9 +22,7 @@ using namespace std;
 #define VK_DOWN			  0x53 //S button
 #define VK_ROTATE         0x52 //R button
 
-const int boardHeight = 20;
-const int boardWidth = 10;
-
+char board[boardHeight][boardWidth] = {};
 
 void ClearScreen()
 {
@@ -27,38 +32,7 @@ void ClearScreen()
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 }
 
-void InsertFigure(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
-{
-	int a = 0;
-	if (y + figure.size() <= boardHeight && x + figure[0].size() <= boardWidth)
-	{
-		for (size_t i = y; i < y + figure.size(); i++)
-		{
-			for (size_t j = 0; j < figure[0].size(); j++)
-			{
-				if (figure[a][j] != ' ')
-				{
-					board[i][x + j] = figure[a][j];
-				}
-			}
-			a++;
-
-		}
-	}
-
-
-}
-
-void ClearA(char board[boardHeight][boardWidth])
-{
-	for (size_t i = 0; i < boardHeight; i++)
-	{
-		replace(std::begin(board[i]), std::end(board[i]), 'A', ' ');
-	}
-
-}
-
-void ChangeToB(char board[boardHeight][boardWidth])
+void ChangeToB()
 {
 	for (size_t i = 0; i < boardHeight; i++)
 	{
@@ -67,7 +41,7 @@ void ChangeToB(char board[boardHeight][boardWidth])
 
 }
 
-void LastMove(int x, int y, int dirx, char board[boardHeight][boardWidth])
+void LastMove(int x, int y, int dirx)
 {
 	bool interupt=false;
 	vector<pair<int, int>> cordinates;//x,y
@@ -97,197 +71,6 @@ void LastMove(int x, int y, int dirx, char board[boardHeight][boardWidth])
 
 }
 
-bool CheckIfCanRotate(char board[boardHeight][boardWidth], vector<vector<char>> figure, int y, int x)
-{
-	for (size_t i = y; i < y + figure.size(); i++)
-	{
-		for (size_t j = 0; j < figure[0].size(); j++)
-		{
-			if (board[i][x + j] == 'B' || x + j<0 || x + j>boardWidth - 1 || board[i][x + j] == '#')
-			{
-				return false;
-			}
-		}
-
-	}
-	return true;
-}
-
-class Figure
-{
-public:
-	int phase = 0;
-	vector<vector<char>> fig;
-	vector<vector<vector<char>>> rotations;
-
-	void Rotate(char Board[boardHeight][boardWidth], vector<vector<vector<char>>> Rotations, int y, int x)
-	{
-		int prevPhase = phase;
-		if (Rotations.size() > 0)
-		{
-			(phase < Rotations.size() - 1) ? phase++ : phase = 0;
-
-			if (CheckIfCanRotate(Board, Rotations[phase], y, x))
-			{
-				ClearA(Board);
-				InsertFigure(Board, Rotations[phase], y, x);
-			}
-			else
-			{
-				phase = prevPhase;
-			}
-
-		}
-
-
-	};
-
-};
-
-class IFigure :public Figure
-{
-public:
-
-	vector<vector<char>> I = { {'A'},
-							{'A'},
-							{'A'},
-							{'A'}
-	};
-	vector<vector<char>> I1 = { {'A','A','A','A'}
-	};
-	IFigure()
-	{
-		fig = I;
-		rotations = { I,I1 };
-	}
-
-};
-
-class SFigure :public Figure
-{
-public:
-	vector<vector<char>> S = { {' ','A','A'},
-								 {'A','A',' '}
-	};
-	vector<vector<char>> S1 = { {'A',' '},
-								{'A','A'},
-								{' ','A'}
-	};
-	SFigure()
-	{
-		fig = S;
-		rotations = { S,S1 };
-	}
-
-};
-
-class ZFigure :public Figure
-{
-public:
-	vector<vector<char>> Z = { {'A','A',' '},
-								 {' ','A','A'}
-	};
-	vector<vector<char>> Z1 = { {' ','A'},
-								  {'A','A'},
-								  {'A',' '}
-	};
-	ZFigure()
-	{
-		fig = Z;
-		rotations = { Z,Z1 };
-	}
-
-};
-
-class LFigure :public Figure
-{
-public:
-	vector<vector<char>> L = { {'A',' '},
-								{'A',' '},
-								{'A','A'},
-	};
-	vector<vector<char>> L1 = { {' ',' ','A'},
-								  {'A','A','A'},
-	};
-	vector<vector<char>> L2 = { {'A','A'},
-								  {' ','A'},
-								{' ','A'},
-	};
-	vector<vector<char>> L3 = { {'A','A','A'},
-						{'A',' ',' '},
-	};
-	LFigure()
-	{
-		fig = L;
-		rotations = { L,L1,L2,L3 };
-	}
-
-};
-
-class JFigure :public Figure
-{
-public:
-	vector<vector<char>> J = { {' ','A'},
-					   {' ','A'},
-					   {'A','A'},
-	};
-	vector<vector<char>> J1 = { {'A','A','A'},
-						{' ',' ','A'},
-	};
-	vector<vector<char>> J2 = { {'A','A'},
-						{'A',' '},
-						{'A',' '},
-	};
-	vector<vector<char>> J3 = { {'A',' ',' '},
-						{'A','A','A'},
-	};
-	JFigure()
-	{
-		fig = J;
-		rotations = { J,J1,J2,J3 };
-	}
-
-};
-
-class TFigure :public Figure
-{
-public:
-	vector<vector<char>> T = { {'A','A','A'},
-					   {' ','A',' '}
-	};
-	vector<vector<char>> T1 = { {'A',' '},
-						{'A','A'},
-						{'A',' '},
-	};
-	vector<vector<char>> T2 = { {' ','A',' '},
-						{'A','A','A'}
-	};
-	vector<vector<char>> T3 = { {' ','A'},
-						{'A','A'},
-						{' ','A'},
-	};
-	TFigure()
-	{
-		fig = T;
-		rotations = { T,T1,T2,T3 };
-	}
-};
-
-class OFigure :public Figure
-{
-public:
-	vector<vector<char>> O = { { 'A','A' }
-								,{ 'A', 'A'}
-	};
-	OFigure()
-	{
-		fig = O;
-		rotations = {};
-	}
-
-};
-
-
 void HideCursor()
 {
 	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -297,7 +80,7 @@ void HideCursor()
 	SetConsoleCursorInfo(consoleHandle, &info);
 }
 
-void RenderBoard(char board[boardHeight][boardWidth],int score)
+void RenderBoard(int score)
 {
 	for (size_t i = 0; i < boardHeight; i++)
 	{
@@ -324,12 +107,6 @@ void RenderBoard(char board[boardHeight][boardWidth],int score)
 
 int main()
 {
-	int figureplace;
-	int boardspaces[boardHeight][boardWidth];
-
-	char board[boardHeight][boardWidth] = {};
-
-
 	for (size_t i = 0; i < boardHeight - 1; i++)
 	{
 		fill(board[i], board[i] + 10, ' ');
@@ -419,7 +196,7 @@ int main()
 				if (board[i][j] == 'A')
 				{
 
-					if ((board[i + 1][j] == 'B' || board[i + 1][j] == '#')|| (board[i + 1][j+x] == 'B' || board[i + 1][j+x] == '#'))
+					if ((board[i + 1][j] == 'B' || board[i + 1][j] == '#'))
 					{
 						canMove = false;
 					}
@@ -478,7 +255,7 @@ int main()
 					{
 						if ((!nearWallLeft && x == -1) || (!nearWallRight && x == 1))
 						{
-							LastMove(posX, posY, x, board);
+							LastMove(posX, posY, x);
 						}
 						canMove = true;
 						posY = 0;
@@ -486,7 +263,7 @@ int main()
 						srand(time(NULL));
 						figures[randomFigure].phase = 0;
 						randomFigure = (rand() % 6) + 1;
-						ChangeToB(board);
+						ChangeToB();
 						//Game Over
 						for (size_t i = 0; i < boardWidth; i++)
 						{
@@ -521,7 +298,7 @@ int main()
 
 
 		
-		RenderBoard(board,score);
+		RenderBoard(score);
 
 		
 		std::this_thread::sleep_for(std::chrono::milliseconds(timeSpeed));

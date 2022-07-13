@@ -18,5 +18,55 @@
     <ClCompile Include="Tetris.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Figure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IFigure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OFigure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TFigure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JFigure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LFigure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ZFigure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SFigure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Figure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IFigure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OFigure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TFigure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JFigure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LFigure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ZFigure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SFigure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
